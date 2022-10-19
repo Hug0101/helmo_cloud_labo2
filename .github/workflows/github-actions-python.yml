@@ -51,3 +51,4 @@ jobs:
     
       - name: Push image
         run: docker push ${{ secrets.ACR_LOGIN_SERVER }}/python_hello_world-app:${{ github.run_number }}
+        
