@@ -1,4 +1,4 @@
-name: Python package
+name: github-actions-python
 
 on: [push]
 
