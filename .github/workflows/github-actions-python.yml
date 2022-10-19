@@ -16,19 +16,39 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+      
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install flake8 pytest
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      
       - name: Test My Python Script
         run: python3 helloworld.py
       
-      - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag python_hello_world:$(date +%s)
+      - name: Authentification to the Container Registry
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build the Docker image and Tag it
+        run: docker build -f ./Dockerfile -t ${{ secrets.ACR_LOGIN_SERVER }}/python_hello_world-app:${{ github.run_number }} .
+        
+      - name: Azure Container Scan
+        uses: Azure/container-scan@v0
+        with:
+         image-name: ${{ secrets.ACR_LOGIN_SERVER }}/python_hello_world-app:${{ github.run_number }
+         severity-threshold: CRITICAL
+         run-quality-checks: true
+    
+      - name: Push image
+        run: docker push ${{ secrets.ACR_LOGIN_SERVER }}/python_hello_world-app:${{ github.run_number }
