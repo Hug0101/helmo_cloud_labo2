@@ -46,7 +46,7 @@ jobs:
       - name: Azure Container Scan
         uses: Azure/container-scan@v0
         with:
-         image-name: ${{ secrets.ACR_LOGIN_SERVER }}/python_hello_world-app:${{ github.run_number }
+         image-name: ${{ secrets.ACR_LOGIN_SERVER }}/python_hello_world-app:${{ github.run_number }}
          severity-threshold: CRITICAL
          run-quality-checks: true
     
